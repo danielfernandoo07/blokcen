@@ -43,6 +43,14 @@ export const revokeCertificate = async (tokenId) => {
   console.log("Revoked:", tx.hash);
 };
 
+export const transferCertificate = async (tokenId, newOwner) => {
+  const signer = await getSigner();
+  const contract = await getContract(signer);
+  const tx = await contract.transferCertificate(tokenId, newOwner);
+  await tx.wait();
+  console.log("Transferred:", tx.hash);
+};
+
 export const verifyCertificate = async (tokenId) => {
   const provider = getProvider();
   const contract = await getContract(provider);
@@ -55,4 +63,28 @@ export const getCertificateData = async (tokenId) => {
   const contract = await getContract(provider);
   const [uri, isRevoked] = await contract.getCertificateData(tokenId);
   return { uri, isRevoked };
+};
+
+export const pauseContract = async () => {
+  const signer = await getSigner();
+  const contract = await getContract(signer);
+  const tx = await contract.pauseContract();
+  await tx.wait();
+  console.log("Contract paused:", tx.hash);
+};
+
+export const unpauseContract = async () => {
+  const signer = await getSigner();
+  const contract = await getContract(signer);
+  const tx = await contract.unpauseContract();
+  await tx.wait();
+  console.log("Contract unpaused:", tx.hash);
+};
+
+export const updateCertificateURI = async (tokenId, newURI) => {
+  const signer = await getSigner();
+  const contract = await getContract(signer);
+  const tx = await contract.updateCertificateURI(tokenId, newURI);
+  await tx.wait();
+  console.log("Metadata updated:", tx.hash);
 };
