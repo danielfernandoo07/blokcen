@@ -57,11 +57,11 @@ const MintCertificateForm = () => {
     <div className="max-w-md mx-auto bg-white p-4 rounded shadow">
       <h2 className="text-xl font-bold mb-4">🎓 Mint NFT Sertifikat</h2>
 
-      <input className="w-full border p-2 mb-3" type="text" placeholder="Alamat Wallet Penerima" value={recipient} onChange={(e) => setRecipient(e.target.value)} />
+      <input className="w-full border p-2 mb-3" type="text" placeholder="Receiver Wallet Address" value={recipient} onChange={(e) => setRecipient(e.target.value)} />
 
-      <input className="w-full border p-2 mb-3" type="text" placeholder="Nama Penerima" value={name} onChange={(e) => setName(e.target.value)} />
+      <input className="w-full border p-2 mb-3" type="text" placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} />
 
-      <input className="w-full border p-2 mb-3" type="text" placeholder="Nama Kursus" value={course} onChange={(e) => setCourse(e.target.value)} />
+      <input className="w-full border p-2 mb-3" type="text" placeholder="Course Name" value={course} onChange={(e) => setCourse(e.target.value)} />
 
       <input className="w-full border p-2 mb-3" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
 
