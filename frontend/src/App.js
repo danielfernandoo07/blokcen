@@ -15,9 +15,29 @@ import { PinataSDK } from "pinata";
 function App() {
   const [account, setAccount] = useState(null);
 
+  const logToGoogleSheets = async ({ action, tokenId, wallet, tokenURI, isRevoked = false, metadataJSON }) => {
+    try {
+      await fetch("http://localhost:3001/log-certificate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action,
+          tokenId,
+          wallet,
+          tokenURI,
+          isRevoked,
+          metadataJSON,
+        }),
+      });
+    } catch (error) {
+      console.error("❌ Gagal menyimpan ke Google Sheets:", error);
+    }
+  };
+
+
   // Minting data
-  const [name, setName] = useState("rey");
-  const [course, setCourse] = useState("halo");
+  const [name, setName] = useState("test");
+  const [course, setCourse] = useState("test");
   const [image, setImage] = useState(null);
   const [date, setDate] = useState("");
   const [recipient, setRecipient] = useState(
@@ -140,6 +160,17 @@ function App() {
       setDateToUpdate("");
       setImageToUpdate("");
       setCourseToUpdate("");
+
+      //baru
+      await logToGoogleSheets({
+        action: "update",
+        tokenId: tokenIdToUpdate,
+        wallet: account,
+        tokenURI: uri,
+        isRevoked: false,
+        metadataJSON: metadata,
+      });
+
     } catch (error) {
       alert("❌ Gagal update metadata sertifikat");
       console.error(error);
@@ -164,6 +195,17 @@ function App() {
       );
 
       setTokenIdToRevoke("");
+
+      //baru
+      await logToGoogleSheets({
+        action: "revoke",
+        tokenId: tokenIdToRevoke,
+        wallet: account,
+        tokenURI: certificateData?.uri || "",
+        isRevoked: true,
+        metadataJSON: {},
+      });
+
     } catch (error) {
       console.log(error);
       alert("❌ Revoke gagal");
@@ -192,6 +234,17 @@ function App() {
 
       setTokenIdToTf("");
       setAddressRecipient("");
+
+      //baru
+      await logToGoogleSheets({
+        action: "transfer",
+        tokenId: tokenIdToTf,
+        wallet: addressRecipient,
+        tokenURI: certificateData?.uri || "",
+        isRevoked: false,
+        metadataJSON: {},
+      });
+
     } catch (error) {
       console.log(error);
       alert("❌ Transfer gagal");
@@ -210,12 +263,13 @@ function App() {
       return;
     }
 
-    const imageHash = (await usePinata.upload.public.file(image)).cid;
-    const url = "https://gateway.pinata.cloud/ipfs";
-
     try {
+      // Upload image and metadata to IPFS via Pinata
+      const imageHash = (await usePinata.upload.public.file(image)).cid;
+      const url = "https://gateway.pinata.cloud/ipfs";
+
       const metadata = {
-        name: `Sertifikat: ${name}`,
+        name: `${name}`,
         image: `${url}/${imageHash}`,
         description: `${name} telah menyelesaikan kursus ${course} pada ${date}`,
         attributes: [
@@ -228,11 +282,24 @@ function App() {
       const fileHash = (await usePinata.upload.public.json(metadata)).cid;
       const uri = `${url}/${fileHash}`;
 
+      // Mint NFT on blockchain
       const hash = await mintCertificate(recipient, uri);
+
       alert(
         `✅ Sertifikat berhasil dimint! Cek di https://holesky.etherscan.io/tx/${hash}`
       );
 
+      //post baru
+      await logToGoogleSheets({
+        action: "mint",
+        tokenId: tokenId,
+        wallet: recipient,
+        tokenURI: uri,
+        isRevoked: false,
+        metadataJSON: metadata,
+      });
+
+      // Clear form
       setName("");
       setImage(null);
       setCourse("");
